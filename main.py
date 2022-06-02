@@ -4,16 +4,16 @@ import joblib
 import pandas as pd
 from typing import List
 
-
-app = FastAPI(title="Bank Credit attribution API",
-              description="API pour récupérer les prédictions d'attribution de crédits")
+app = FastAPI(
+    title="Bank Credit attribution API",
+    description="API pour récupérer les prédictions d'attribution de crédits")
 
 # charger les données
 job_dir = './JOBLIB'
 data_dict = joblib.load(job_dir + '/dataModel.joblib')
 pipeline = joblib.load(job_dir + '/pipeline.joblib')
-data = joblib.load(job_dir + '/data.joblib')
-
+# data = joblib.load(job_dir + '/data.joblib')
+data = joblib.load(job_dir + '/data_small.joblib')
 
 # définition de la structure des données nécessaires à la prédiction
 # from https://medium.com/analytics-vidhya/serve-a-machine-learning-model-using-sklearn-fastapi-and-docker-85aabf96729b
@@ -23,13 +23,13 @@ data = joblib.load(job_dir + '/data.joblib')
 
 Info_client = create_model('loan_data', **data_dict, __base__=BaseModel)
 
-
 # test configuration
 # @app.get("/{client_id}")
 # def read_client_id(client_id: int):
 #     return {"ID a rechercher": "{}".format(client_id)}
 
-# option 1 : on envoi juste l'id client par l'url et on recupere le predict
+
+# option 1 : on envoie juste l'id client par l'url et on recupere le predict
 @app.get("/{client_id}")
 def prediction_get(client_id: int):
     if client_id not in data.index:
@@ -64,6 +64,9 @@ def prediction_post(data_client: Info_client):
     #         "probabilite": y_proba_user}
     return {"decision : {}".format(decision)}
 
+
 # @app.post("/client/")
 # async def create_client(item: Info_client):
 #     return item
+
+# uvicorn main:app --reload
