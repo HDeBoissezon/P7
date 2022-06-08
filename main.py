@@ -1,8 +1,12 @@
+# uvicorn main:app --reload
+# http://127.0.0.1:8000
+
 from fastapi import FastAPI
 from pydantic import BaseModel, create_model, conlist
 import joblib
 import pandas as pd
 from typing import List
+import json
 
 app = FastAPI(
     title="Bank Credit attribution API",
@@ -14,12 +18,6 @@ data_dict = joblib.load(job_dir + '/dataModel.joblib')
 pipeline = joblib.load(job_dir + '/pipeline.joblib')
 # data = joblib.load(job_dir + '/data.joblib')
 data = joblib.load(job_dir + '/data_small.joblib')
-
-# définition de la structure des données nécessaires à la prédiction
-# from https://medium.com/analytics-vidhya/serve-a-machine-learning-model-using-sklearn-fastapi-and-docker-85aabf96729b
-# class Info_client(BaseModel):
-#     data_quali: List[conlist(object, min_items=12, max_items=12)]
-#     data_quanti: List[conlist(float, min_items=113, max_items=113)]
 
 Info_client = create_model('loan_data', **data_dict, __base__=BaseModel)
 
@@ -34,6 +32,7 @@ Info_client = create_model('loan_data', **data_dict, __base__=BaseModel)
 def prediction_get(client_id: int):
     if client_id not in data.index:
         decision = "ID client inconnue"
+
     else:
         data_user = pd.DataFrame(data.loc[client_id, :]).T
         y_proba_user = pipeline.predict_proba(data_user)[:, 1]
@@ -43,7 +42,8 @@ def prediction_get(client_id: int):
         else:
             decision = 0
 
-    return {"Client {} : {}".format(client_id, decision)}
+    # return {"Client {} : {}".format(client_id, decision)}
+    return json.dumps(y_proba_user.tolist())
 
 
 # option 2 : on envois toutes les info ==> post + utilise le request body
