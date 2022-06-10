@@ -29,8 +29,11 @@ def main():
 
     with st.empty():
         st.write("Chargement des données...", )
-        pipeline, data, data_display, data_display_target, liste_quali, shap_values, shap_exp, admin = load_data(
-        )
+        [
+            pipeline, data, data_display, data_display_target, liste_quali,
+            shap_values, shap_exp, admin, data_shap
+        ] = load_data()
+
         # st.write("")
     # st.write(pipeline)
     # st.write(data.shape)
@@ -55,10 +58,10 @@ def main():
     client_ID, client_id_tab = get_client(data)
     score, result = prediction(client_ID, seuil)
 
-    #Display Customer ID from Sidebar
-    st.write("**ID client sélectionné :**", client_ID)
-
     if selection == "Score du client":
+        #Display Customer ID from Sidebar
+
+        st.write("**ID client sélectionné :**", client_ID)
         infos_client(admin, client_ID)
         visu_score_client(score, result, seuil, client_id_tab, client_ID,
                           shap_exp, shap_values, data_display)
@@ -69,9 +72,14 @@ def main():
         ):
             comparaison(data, data_display_target, client_ID, admin)
 
-    # if selection == "Modèle de scoring":
-    # feature_importance(shap_value=shap_values, df=data, max_display=15)
-    # comparaison(data, data_display_target, client_ID, admin)
+    if selection == "Modèle de scoring":
+        st.title("Modèle de scoring")
+        st.write(
+            "Comportement général du modèle : quelles informations sont principalement utilisées pour prévoir la solvabilité du client"
+        )
+        feature_importance(shap_value=shap_values,
+                           df=data_shap,
+                           max_display=15)
 
 
 @st.cache
@@ -105,9 +113,10 @@ def load_data():
     shap_values = explainer(data_shap)
     shap_exp = explainer.expected_value
 
-    # st.write(data_shap)
-
-    return pipeline, data, data_display, data_display_target, liste_quali, shap_values, shap_exp, admin
+    return [
+        pipeline, data, data_display, data_display_target, liste_quali,
+        shap_values, shap_exp, admin, data_shap
+    ]
 
 
 def get_client(df):
@@ -141,7 +150,6 @@ def get_client(df):
     #"""Sélection d'un client via une selectbox"""
     df = df.reset_index()
     client = st.sidebar.selectbox('Client', df['SK_ID_CURR'])
-    # client = id
     idx_client = df.index[df['SK_ID_CURR'] == client][0]
     return client, idx_client
 
@@ -158,8 +166,6 @@ def color(pred):
 def st_shap(plot, height=None):
     """Fonction permettant l'affichage de graphique shap values"""
     shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
-    # shap_html = f"<head>{shap.initjs()}</head><body>{plot.html()}</body>"
-
     components.html(shap_html, height=height)
 
 
@@ -185,7 +191,7 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
     visualisation du score et des variables principales ayant contribuées à ce score
     (explicabilité du modèle)
     '''
-    st.subheader('Score du client')
+    st.title('Score du client')
     fig = go.Figure(
         go.Indicator(mode="gauge+number",
                      value=1 - score,
@@ -230,7 +236,12 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
 
     st.plotly_chart(fig)
 
-    if st.checkbox("Mieux comprendre ce score..."):
+    if st.checkbox(
+            "Quelles variables ont joué un rôle décisif dans l'attribution de ce score ?"
+    ):
+        # st.write(
+        #     "Quelles variables ont joué un rôle décisif dans l'attribution de ce score ?"
+        # )
         shap.initjs()
         st.subheader("Diagramme SHAP - Waterfall")
         fig2, ax2 = plt.subplots(figsize=(20, 20))
@@ -238,9 +249,6 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
         st.pyplot(fig2)
 
         st.subheader("Diagramme SHAP - Force Plot")
-        # st.write(shap_values)
-        # st.write(len(shap_values[client_id_tab, :].values),
-        #          len(data_display.loc[client_ID, :]))
         st_shap(
             shap.force_plot(shap_exp, shap_values[client_id_tab, :].values,
                             data_display.loc[client_ID, :]))
@@ -404,10 +412,21 @@ def chart_bar(df, col, client):
 
 
 def feature_importance(shap_value, df, max_display):
-    st.write("Diagramme SHAP - Summary plot")
+    # st.write("Diagramme SHAP - Summary plot")
     shap.initjs()
-    # st_shap(shap.summary_plot(shap_value, df, max_display=max_display))
-    st_shap(shap.plots.bar(shap_value.abs.mean(0), max_display=max_display))
+    st.subheader("Diagramme SHAP - Summary plot")
+    st.write("affichage des valeurs moyennes de shapley par variable")
+    fig, ax = plt.subplots()
+    shap.summary_plot(shap_value, df, max_display=max_display, plot_type='bar')
+    st.pyplot(fig)
+
+    st.subheader("Diagramme SHAP - Summary plot")
+    st.write(
+        "Visualisation de la repartition de chaque client dans l'évaluation du score"
+    )
+    fig, ax = plt.subplots()
+    shap.summary_plot(shap_value, df, max_display=max_display)
+    st.pyplot(fig)
 
 
 if __name__ == '__main__':
