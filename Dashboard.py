@@ -31,7 +31,7 @@ def main():
         st.write("Chargement des données...", )
         pipeline, data, data_display, data_display_target, liste_quali, shap_values, shap_exp, admin = load_data(
         )
-        st.write("")
+        # st.write("")
     # st.write(pipeline)
     # st.write(data.shape)
     # st.write(data_display.shape)
@@ -85,7 +85,7 @@ def load_data():
 
     # jeu de données utilisé pour la modélisation (déjà encodé)
     data = joblib.load(job_dir + '/data_small.joblib')
-    st.write(data.shape)
+    # st.write(data.shape)
 
     # jeu de données non encodé + target
     data_display_target = joblib.load(job_dir + '/data_no_encod.joblib')
@@ -104,6 +104,8 @@ def load_data():
     explainer = shap.Explainer(pipeline[1], data_shap)
     shap_values = explainer(data_shap)
     shap_exp = explainer.expected_value
+
+    # st.write(data_shap)
 
     return pipeline, data, data_display, data_display_target, liste_quali, shap_values, shap_exp, admin
 
