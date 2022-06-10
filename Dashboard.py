@@ -34,16 +34,7 @@ def main():
             shap_values, shap_exp, admin, data_shap
         ] = load_data()
 
-        # st.write("")
-    # st.write(pipeline)
-    # st.write(data.shape)
-    # st.write(data_display.shape)
-    # st.write(data_display_target.shape)
-    # st.write(liste_quali)
-    # st.write(shap_values.shape)
-    # st.write(shap_exp)
-    # st.write(admin.shape)
-    # st.write(data_shap.shape)
+        st.write("")
 
     PAGES = ["Score du client", "Modèle de scoring"]
     with st.sidebar:
