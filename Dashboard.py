@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import seaborn as sns
 #import lightgbm
 from matplotlib.image import imread
-import altair as alt
+# import altair as alt
 import requests
 import json
 from sklearn.neighbors import NearestNeighbors
@@ -91,10 +91,10 @@ def load_data():
     data_display = data_display_target.drop('TARGET', axis=1)
 
     # liste des données qualitatives
-    liste_quali = joblib.load(job_dir + './liste_quali.joblib')
+    liste_quali = joblib.load(job_dir + '/liste_quali.joblib')
 
     # Données administratives
-    admin = joblib.load(job_dir + './admin.joblib')
+    admin = joblib.load(job_dir + '/admin.joblib')
     admin['YEARS_BIRTH'] = admin['DAYS_BIRTH'].apply(lambda x: -int(x / 365))
 
     # preparation données pour shap
