@@ -1,0 +1,4 @@
+# P7 : Mise en place d’un outil de scoring et d’un dashboard interactif
+Ce projet s'inscrit dans le cadre de la formation Data Scientist délivrée par **OpenClassRooms** et **Centrale Supélec**.
+
+La société **Prêt à dépenser** souhaite mettre en place un outil de scoring crédit afin de calculer la probabilité qu’un client rembourse son crédit. Pour réaliser cela, nous allons nous appuyer sur les données issues de la compétition Kaggle *« Home Credit Default Risk »*. Cette base de données ayant déjà été travaillée par de nombreuses personnes, nous allons utiliser un kernel kaggle préexistant pour réaliser la préparation des données. Afin de sélectionner et optimiser le modèle de machine learning approprié, une métrique spécifique à notre problématique est créée. Enfin, l’interprétabilité du modèle retenu est explorée, de façon à être en mesure d’expliquer au demandeur de prêt la décision prise par la société Prêt à dépenser.
