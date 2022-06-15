@@ -128,11 +128,11 @@ def prediction(id, seuil):
     URL = "https://app-p7.herokuapp.com/" + str(id)
 
     # sending get request and saving the response as response object
-    r = requests.get(url=URL)  #, params = PARAMS)
+    r = requests.get(url=URL)
 
     result = json.loads(r.json())
     y_pred = result[0]
-    decision = np.where(1 - y_pred < 1 - seuil, "Prêt Rejeté", "Prêt Accepté")
+    decision = np.where(y_pred >= seuil, "Prêt Rejeté", "Prêt Accepté")
 
     return y_pred, decision
 
@@ -185,7 +185,7 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
     st.title('Score du client')
     fig = go.Figure(
         go.Indicator(mode="gauge+number",
-                     value=1 - score,
+                     value=score,
                      number={'font': {
                          'size': 48
                      }},
@@ -209,11 +209,11 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
                              'color': color(result)
                          },
                          'steps': [{
-                             'range': [0, 1 - seuil],
-                             'color': 'lightcoral'
-                         }, {
-                             'range': [1 - seuil, 1],
+                             'range': [0, seuil],
                              'color': 'lightgreen'
+                         }, {
+                             'range': [seuil, 1],
+                             'color': 'lightcoral'
                          }],
                          'threshold': {
                              'line': {
@@ -221,7 +221,7 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
                                  'width': 5
                              },
                              'thickness': 1,
-                             'value': 1 - seuil
+                             'value': seuil
                          }
                      }))
 
@@ -230,9 +230,7 @@ def visu_score_client(score, result, seuil, client_id_tab, client_ID, shap_exp,
     if st.checkbox(
             "Quelles variables ont joué un rôle décisif dans l'attribution de ce score ?"
     ):
-        # st.write(
-        #     "Quelles variables ont joué un rôle décisif dans l'attribution de ce score ?"
-        # )
+
         shap.initjs()
         st.subheader("Diagramme SHAP - Waterfall")
         fig2, ax2 = plt.subplots(figsize=(20, 20))
@@ -251,7 +249,6 @@ def identite_client(data, id):
 
 
 def comparaison(df, data_target, client_ID, admin):
-    # df_train2, df_train, idx_client
     """Fonction principale de l'onglet 'Comparaison clientèle' """
 
     st.subheader('Comparaison clientèle')
@@ -403,7 +400,6 @@ def chart_bar(df, col, client):
 
 
 def feature_importance(shap_value, df, max_display):
-    # st.write("Diagramme SHAP - Summary plot")
     shap.initjs()
     st.subheader("Diagramme SHAP - Summary plot")
     st.write("affichage des valeurs moyennes de shapley par variable")
