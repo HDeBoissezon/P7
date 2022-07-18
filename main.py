@@ -12,7 +12,7 @@ app = FastAPI(
 
 # charger les données
 job_dir = './JOBLIB'
-data_dict = joblib.load(job_dir + '/dataModel.joblib')
+# data_dict = joblib.load(job_dir + '/dataModel.joblib')
 pipeline = joblib.load(job_dir + '/pipeline.joblib')
 data = joblib.load(job_dir + '/data_small.joblib')
 
